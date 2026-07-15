@@ -1,0 +1,94 @@
+{
+  "seen_permit_numbers": [
+    "2025 044992",
+    "2025 044993",
+    "2025 047087",
+    "2025 047088",
+    "2025 048569",
+    "2025 048570",
+    "2025 049497",
+    "2025 050021",
+    "2025 050165",
+    "2025 052039",
+    "2026 002028",
+    "2026 008313",
+    "2026 010611",
+    "2026 022903",
+    "2026 023049"
+  ],
+  "processed_reports": {
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%202026%20-%20January.pdf": {
+      "sha256": "2d7771b46ab0cd4a1b2b62e3f8441b327399c693072a0e5a04e6a0868f75fa24",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:14:36.615899+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%202026%20-%20February.pdf": {
+      "sha256": "1e8cc27a8fd065767dcd9f4f9b67d1ac604e2c448eca5c401e764bf2beceff37",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:14:41.578897+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%202026%20-%20March.pdf": {
+      "sha256": "87c3c610a430b0580943caa7ee03fd2b0af950c32b5b31f4996b84445532ccae",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:14:46.859246+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%202026%20-%20April.pdf": {
+      "sha256": "2613a19a613ea982af0acbf454f0646b8079c2006b84f0be6b097c4ffa9460c5",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:14:51.522640+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%202026%20-%20May.pdf": {
+      "sha256": "682c543e3e7d65c876b0c2a9052ffbf2c998e478a0f9c2826e39e5ebad4804f6",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:14:56.480592+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%20June%20-%202026.pdf": {
+      "sha256": "7bfa271a83c5a4dc2147f0ee6745269bd26a0602931728120b62cd22520c00e9",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:15:36.654983+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/YTD2025_bldg_BI_report.pdf": {
+      "sha256": "9516444695727e3f26d554dd689b82c06ef226a7aa0ce8c5dc39de2c92fd4a6e",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:16:16.817286+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Yearly%20Report%20-%20January%201%20to%20December%2031%202024.pdf": {
+      "sha256": "b902c52a83826cbd9ba529a28dfd393c0e01cbee175f705310947f264e56df9b",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:16:21.884903+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Yearly%20Report%20-%20January%201%20-%20December%2031%202023.pdf": {
+      "sha256": "3a4b209717a3e623d01bdb1c0c97a5129025900a909452ef55d85efd7364e90c",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:16:26.948921+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Development%20Services%20Dashboard%20Public%202022%20-%20SP.pdf": {
+      "sha256": "456337560039159a4ed957e2028ece6d4f51cbe5cce3e18fadc66b30e8903b01",
+      "parsed_rows": 0,
+      "matched_rows": 0,
+      "last_fetched": "2026-07-15T16:16:31.741449+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Major%20Construction%20Report%20Jan%20-%20%20May%202026.pdf": {
+      "sha256": "93b1884c2e91c982751c35295e4380a6825d1a6bd3b8b040ce1d40b8e2291c38",
+      "parsed_rows": 134,
+      "matched_rows": 13,
+      "last_fetched": "2026-07-15T16:17:12.350774+00:00"
+    },
+    "https://www.citywindsor.ca/documents/residents/building/building-information/Major%20Construction%20Report%20Jan%20-%20June%202026.pdf": {
+      "sha256": "de98f04d10038659438509a53f83af51b7c0f888a42bfd41df9c73320f0265f6",
+      "parsed_rows": 167,
+      "matched_rows": 15,
+      "last_fetched": "2026-07-15T16:17:17.589214+00:00"
+    }
+  },
+  "last_run": "2026-07-15T16:17:17.590248+00:00"
+}

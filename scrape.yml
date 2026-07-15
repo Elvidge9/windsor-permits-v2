@@ -1,0 +1,45 @@
+name: Weekly Windsor permit scrape
+
+on:
+  schedule:
+    - cron: "15 11 * * 1"
+  workflow_dispatch:
+    inputs:
+      full_rebuild:
+        description: "Reprocess all reports from scratch"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        run: |
+          if [ "${{ inputs.full_rebuild }}" = "true" ]; then
+            python windsor_permits.py --full
+          else
+            python windsor_permits.py
+          fi
+
+      - name: Commit updated data
+        run: |
+          git config user.name "permit-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add output/ state.json
+          git diff --staged --quiet || git commit -m "Weekly permit update $(date -u +%F)"
+          git push

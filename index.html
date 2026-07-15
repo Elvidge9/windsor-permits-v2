@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windsor Permit Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #1a2332; --muted: #6b7686;
+    --accent: #1f6feb; --line: #e3e7ee; --gold: #b45309;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         background: var(--bg); color: var(--ink); }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px 60px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: .9rem; margin-bottom: 20px; }
+  .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+          padding: 14px 18px; min-width: 150px; flex: 1; }
+  .card .num { font-size: 1.4rem; font-weight: 700; }
+  .card .lbl { font-size: .78rem; color: var(--muted); text-transform: uppercase;
+               letter-spacing: .04em; margin-top: 2px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  input[type="search"], select {
+    padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: .9rem; background: var(--card); color: var(--ink);
+  }
+  input[type="search"] { flex: 1; min-width: 220px; }
+  .tablebox { background: var(--card); border: 1px solid var(--line);
+              border-radius: 10px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th, td { padding: 10px 12px; text-align: left; vertical-align: top; }
+  th { background: #fbfcfe; border-bottom: 2px solid var(--line); cursor: pointer;
+       user-select: none; white-space: nowrap; position: sticky; top: 0; }
+  th .arrow { color: var(--accent); font-size: .75rem; }
+  tbody tr { border-bottom: 1px solid var(--line); }
+  tbody tr:hover { background: #f4f8ff; }
+  td.val { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px;
+           font-size: .72rem; font-weight: 600; }
+  .b-res { background: #e7f0ff; color: #1f4fa3; }
+  .b-com { background: #fdf1e2; color: #92510a; }
+  .b-ind { background: #eee9fb; color: #5b3fa8; }
+  .b-ins { background: #e5f6ec; color: #1a7742; }
+  .b-repeat { background: #fef3c7; color: var(--gold); }
+  .b-cat { background: #eef1f5; color: #3b4657; }
+  .desc { color: var(--muted); max-width: 420px; }
+  .status { padding: 30px; text-align: center; color: var(--muted); }
+  .status.error { color: #b3261e; }
+  @media (max-width: 700px) { .desc { max-width: 220px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Windsor Permit Tracker</h1>
+  <div class="sub">ADU &amp; water service permits scraped from City of Windsor public reports.
+    Updated weekly by GitHub Actions. <span id="updated"></span></div>
+
+  <div class="cards">
+    <div class="card"><div class="num" id="c-total">–</div><div class="lbl">Permits</div></div>
+    <div class="card"><div class="num" id="c-value">–</div><div class="lbl">Total valuation</div></div>
+    <div class="card"><div class="num" id="c-recent">–</div><div class="lbl">Issued last 90 days</div></div>
+    <div class="card"><div class="num" id="c-repeat">–</div><div class="lbl">Repeat-builder permits</div></div>
+  </div>
+
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search address, description, permit #, contractor…">
+    <select id="type">
+      <option value="">All types</option>
+      <option>Residential</option><option>Commercial</option>
+      <option>Industrial</option><option>Institutional</option>
+    </select>
+    <select id="cat">
+      <option value="">All categories</option>
+      <option>ADU</option><option>Water/Meter</option>
+      <option>New Construction</option><option>Other</option>
+    </select>
+  </div>
+
+  <div class="tablebox">
+    <table id="tbl">
+      <thead><tr>
+        <th data-k="issue_date">Issued <span class="arrow">▼</span></th>
+        <th data-k="permit_number">Permit #</th>
+        <th data-k="permit_type">Type</th>
+        <th data-k="category">Category</th>
+        <th data-k="project_address">Address</th>
+        <th data-k="description">Description</th>
+        <th data-k="valuation">Valuation</th>
+        <th data-k="contractor">Contractor</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="status" id="status">Loading permits.csv…</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var rows = [], sortKey = "issue_date", sortDesc = true;
+  var money = function (n) {
+    return "$" + Number(n || 0).toLocaleString("en-CA", { maximumFractionDigits: 0 });
+  };
+  var badge = function (t) {
+    var cls = { Residential: "b-res", Commercial: "b-com",
+                Industrial: "b-ind", Institutional: "b-ins" }[t] || "b-res";
+    return '<span class="badge ' + cls + '">' + t + "</span>";
+  };
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  };
+
+  function render() {
+    var q = document.getElementById("q").value.toLowerCase();
+    var ty = document.getElementById("type").value;
+    var ct = document.getElementById("cat").value;
+    var view = rows.filter(function (r) {
+      if (ty && r.permit_type !== ty) return false;
+      if (ct && r.category !== ct) return false;
+      if (!q) return true;
+      return (r.project_address + " " + r.description + " " + r.category +
+              " " + r.permit_number + " " + r.contractor).toLowerCase().indexOf(q) !== -1;
+    });
+    view.sort(function (a, b) {
+      var x = a[sortKey], y = b[sortKey];
+      if (sortKey === "valuation") { x = +x || 0; y = +y || 0; }
+      if (x < y) return sortDesc ? 1 : -1;
+      if (x > y) return sortDesc ? -1 : 1;
+      return 0;
+    });
+    var html = view.map(function (r) {
+      var rep = r.repeat_builder === "YES"
+        ? ' <span class="badge b-repeat">repeat ×' + esc(r.builder_permit_count) + "</span>" : "";
+      return "<tr><td>" + esc(r.issue_date) + "</td><td>" + esc(r.permit_number) +
+        "</td><td>" + badge(esc(r.permit_type)) + '</td><td><span class="badge b-cat">' +
+        esc(r.category || "—") + "</span></td><td>" + esc(r.project_address) +
+        '</td><td class="desc">' + esc(r.description) + '</td><td class="val">' +
+        money(r.valuation) + "</td><td>" + (esc(r.contractor) || "—") + rep + "</td></tr>";
+    }).join("");
+    document.querySelector("#tbl tbody").innerHTML = html;
+    document.getElementById("status").style.display = view.length ? "none" : "block";
+    document.getElementById("status").textContent = view.length ? "" : "No permits match.";
+  }
+
+  function stats() {
+    var total = 0, recent = 0, repeat = 0;
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+    rows.forEach(function (r) {
+      total += +r.valuation || 0;
+      if (new Date(r.issue_date) >= cutoff) recent++;
+      if (r.repeat_builder === "YES") repeat++;
+    });
+    document.getElementById("c-total").textContent = rows.length;
+    document.getElementById("c-value").textContent = money(total);
+    document.getElementById("c-recent").textContent = recent;
+    document.getElementById("c-repeat").textContent = repeat;
+    var newest = rows.map(function (r) { return r.issue_date; }).sort().pop();
+    if (newest) document.getElementById("updated").textContent =
+      "Newest permit: " + newest + ".";
+  }
+
+  document.querySelectorAll("th").forEach(function (th) {
+    th.addEventListener("click", function () {
+      var k = th.getAttribute("data-k");
+      if (sortKey === k) sortDesc = !sortDesc; else { sortKey = k; sortDesc = true; }
+      document.querySelectorAll("th .arrow").forEach(function (a) { a.remove(); });
+      var s = document.createElement("span");
+      s.className = "arrow"; s.textContent = sortDesc ? " ▼" : " ▲";
+      th.appendChild(s);
+      render();
+    });
+  });
+  document.getElementById("q").addEventListener("input", render);
+  document.getElementById("type").addEventListener("change", render);
+  document.getElementById("cat").addEventListener("change", render);
+
+  Papa.parse("output/permits.csv?cachebust=" + Date.now(), {
+    download: true, header: true, skipEmptyLines: true,
+    complete: function (res) {
+      rows = res.data.filter(function (r) { return r.permit_number; });
+      if (!rows.length) {
+        document.getElementById("status").textContent =
+          "permits.csv loaded but contains no rows yet — run the scraper workflow first.";
+        return;
+      }
+      stats(); render();
+    },
+    error: function () {
+      var el = document.getElementById("status");
+      el.className = "status error";
+      el.textContent = "Couldn't load output/permits.csv — run the " +
+        "scraper workflow once so the file exists, then refresh.";
+    }
+  });
+})();
+</script>
+</body>
+</html>
